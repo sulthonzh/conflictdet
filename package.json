@@ -1,0 +1,12 @@
+{
+  "name": "conflictdet",
+  "version": "1.0.0",
+  "description": "Detect git merge conflict markers in source files. Zero dependencies.",
+  "main": "src/index.js",
+  "bin": { "conflictdet": "src/cli.js" },
+  "scripts": {
+    "test": "node --test test/"
+  },
+  "keywords": ["git", "merge", "conflict", "marker", "detect", "ci"],
+  "license": "MIT"
+}
