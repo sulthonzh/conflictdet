@@ -5,8 +5,11 @@
   "main": "src/index.js",
   "bin": { "conflictdet": "src/cli.js" },
   "scripts": {
-    "test": "node --test test/"
+    "test": "node --test test/*.js"
   },
   "keywords": ["git", "merge", "conflict", "marker", "detect", "ci"],
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
