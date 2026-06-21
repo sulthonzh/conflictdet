@@ -11,12 +11,12 @@
  *   conflictdet --exts .js,.ts    Only scan these extensions
  */
 
-const { scanFile, scanDir, summarize } = require('./index.js');
+const { scanFile, scanDir, summarize, VERSION } = require('./index.js');
 const fs = require('fs');
 const path = require('path');
 
 function parseArgs(argv) {
-  const args = { paths: [], json: false, ci: false, exts: null, compact: false, help: false };
+  const args = { paths: [], json: false, ci: false, exts: null, compact: false, help: false, version: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--json') args.json = true;
@@ -24,6 +24,7 @@ function parseArgs(argv) {
     else if (a === '--compact') args.compact = true;
     else if (a === '--exts') { args.exts = (argv[++i] || '').split(',').map(s => s.trim()).filter(Boolean); }
     else if (a === '-h' || a === '--help') args.help = true;
+    else if (a === '--version' || a === '-V') args.version = true;
     else if (!a.startsWith('--')) args.paths.push(a);
   }
   return args;
@@ -66,6 +67,7 @@ function formatConflict(c, compact) {
 function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) { help(); process.exit(0); }
+  if (args.version) { console.log(VERSION); process.exit(0); }
 
   const targets = args.paths.length ? args.paths : ['.'];
   const opts = args.exts ? { exts: args.exts } : {};

@@ -1,13 +1,25 @@
 {
   "name": "conflictdet",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Detect git merge conflict markers in source files. Zero dependencies.",
   "main": "src/index.js",
-  "bin": {
-    "conflictdet": "src/cli.js"
+  "bin": { "conflictdet": "src/cli.js" },
+  "exports": {
+    ".": {
+      "require": "./src/index.js",
+      "import": "./src/index.js"
+    }
   },
+  "files": [
+    "src",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "test": "node --test test/*.js"
+    "test": "node --test test/*.js",
+    "test:core": "node --test test/*.js",
+    "prepublishOnly": "npm test"
   },
   "keywords": [
     "git",
@@ -21,11 +33,6 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "files": [
-    "src/",
-    "README.md",
-    "LICENSE"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/sulthonzh/conflictdet.git"

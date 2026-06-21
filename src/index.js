@@ -23,6 +23,11 @@ const MARKER_SEP    = /^={7}\s*$/;
 const MARKER_THEIRS = /^>{7}\s*(.*)$/;
 
 /**
+ * Package version (matches package.json)
+ */
+const VERSION = '1.1.0';
+
+/**
  * @typedef {Object} Conflict
  * @property {string} file     — File path
  * @property {number} line     — 1-indexed line number of the `<<<<<<<` marker
@@ -243,4 +248,4 @@ function summarize(conflicts) {
   };
 }
 
-module.exports = { scanContent, scanFile, scanDir, summarize };
+module.exports = { scanContent, scanFile, scanDir, summarize, VERSION };
