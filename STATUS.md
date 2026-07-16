@@ -1,5 +1,7 @@
 # conflictdet Status
 
+**Last audit:** 2026-07-16
+
 ## Exceptional Checklist (v1.1.0)
 
 - [x] README hooks reader in first 3 lines ("Zero-dependency merge conflict detector. 23 tests, 100% pass rate. Catch conflicts before they ship.")

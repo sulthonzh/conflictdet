@@ -33,10 +33,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Quick pre-check for marker presence before full parsing
 - Efficient Set-based lookups for ignore patterns
 
+## [1.1.0] - 2026-06-22
+
+### Added
+- `VERSION` export constant in programmatic API
+- `--version` / `-V` CLI flags
+- `.npmrc` for engine-strict enforcement
+- `exports`, `files`, `prepublishOnly`, `test:core` fields in package.json
+- Rewrote README with compelling hook, comparison table, and 3 real-world examples
+
+### Changed
+- Test coverage improved: 87.50% → 100% branches on src/index.js (this patch)
+- Test count: 23 → 29
+
 ## [Unreleased]
 
 ### Planned
-- Add --version/-V CLI flags
-- Add VERSION export constant
-- Improve test coverage reporting
-- Add comparison table vs alternative tools
+- Glob pattern support for path arguments
+- GitLab-style `+++>>>>>>>` resolved markers detection

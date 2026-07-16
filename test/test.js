@@ -280,3 +280,93 @@ test('handles markers with trailing whitespace', () => {
   assert.equal(conflicts[0].ours, 'HEAD');
   assert.equal(conflicts[0].theirs, 'branch');
 });
+
+// === Branch coverage: malformed paths after separator ===
+
+test('detects malformed conflict (nested start after separator)', () => {
+  // After separator is found, another <<<<<<< appears before >>>>>>> → malformed
+  const content = `<<<<<<< HEAD
+a
+=======
+<<<<<<< inner
+b
+>>>>>>> branch`;
+  const conflicts = scanContent(content);
+  assert.equal(conflicts.length, 2);
+  // First: had separator but found another start before end → malformed
+  const first = conflicts.find(c => c.ours === 'HEAD');
+  assert.ok(first);
+  assert.equal(first.malformed, true);
+  assert.match(first.reason, /end marker/);
+  assert.equal(first.sepLine, 3); // separator was found
+  // Second: inner <<<<<<< has no separator → also malformed
+  const second = conflicts.find(c => c.ours === 'inner');
+  assert.ok(second);
+  assert.equal(second.malformed, true);
+  assert.match(second.reason, /separator/);
+});
+
+// === Branch coverage: scanDir error paths ===
+
+test('scanDir handles unreadable directory gracefully', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'conflictdet-'));
+  const restricted = path.join(tmpDir, 'restricted');
+  fs.mkdirSync(restricted, { recursive: true });
+  fs.writeFileSync(path.join(restricted, 'a.js'), `<<<<<<< HEAD\na\n=======\nb\>>>>>>> branch\n`);
+
+  // Remove read permission on subdirectory
+  fs.chmodSync(restricted, 0o000);
+  const conflicts = scanDir(tmpDir);
+  // Should not throw, should return empty (or only files from readable dirs)
+  assert.equal(conflicts.length, 0);
+  fs.chmodSync(restricted, 0o755);
+  fs.rmSync(tmpDir, { recursive: true });
+});
+
+test('scanDir handles file stat errors gracefully', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'conflictdet-'));
+  // Create a broken symlink that will fail on statSync
+  fs.symlinkSync('/nonexistent/path/file.js', path.join(tmpDir, 'broken.js'));
+
+  // Should not throw
+  const conflicts = scanDir(tmpDir);
+  assert.equal(conflicts.length, 0);
+  fs.rmSync(tmpDir, { recursive: true });
+});
+
+test('scanDir handles unreadable file gracefully', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'conflictdet-'));
+  const unreadable = path.join(tmpDir, 'unreadable.js');
+  fs.writeFileSync(unreadable, `<<<<<<< HEAD\na\n=======\nb\>>>>>>> branch\n`);
+  fs.chmodSync(unreadable, 0o000);
+
+  // Should not throw, should skip the file
+  const conflicts = scanDir(tmpDir);
+  assert.equal(conflicts.length, 0);
+  fs.chmodSync(unreadable, 0o644);
+  fs.rmSync(tmpDir, { recursive: true });
+});
+
+test('scanDir skips .min.js and .min.css compound extensions', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'conflictdet-'));
+  fs.writeFileSync(path.join(tmpDir, 'bundle.min.js'), `<<<<<<< HEAD\na\n=======\nb\>>>>>>> branch\n`);
+  fs.writeFileSync(path.join(tmpDir, 'styles.min.css'), `<<<<<<< HEAD\na\n=======\nb\>>>>>>> branch\n`);
+  fs.writeFileSync(path.join(tmpDir, 'app.js'), `<<<<<<< HEAD\na\n=======\nb\>>>>>>> branch\n`);
+
+  const conflicts = scanDir(tmpDir);
+  assert.equal(conflicts.length, 1);
+  assert.ok(conflicts[0].file.endsWith('app.js'));
+  fs.rmSync(tmpDir, { recursive: true });
+});
+
+test('scanDir custom ignoreDirs are merged with defaults', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'conflictdet-'));
+  fs.mkdirSync(path.join(tmpDir, 'custom-exclude'));
+  fs.writeFileSync(path.join(tmpDir, 'custom-exclude', 'a.js'), `<<<<<<< HEAD\na\n=======\nb\>>>>>>> branch\n`);
+  fs.writeFileSync(path.join(tmpDir, 'b.js'), `<<<<<<< HEAD\nc\n=======\nd\>>>>>>> branch\n`);
+
+  const conflicts = scanDir(tmpDir, { ignoreDirs: ['custom-exclude'] });
+  assert.equal(conflicts.length, 1);
+  assert.ok(conflicts[0].file.endsWith('b.js'));
+  fs.rmSync(tmpDir, { recursive: true });
+});

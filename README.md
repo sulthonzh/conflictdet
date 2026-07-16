@@ -1,6 +1,6 @@
 # conflictdet
 
-**Zero-dependency merge conflict detector. 23 tests, 100% pass rate. Catch conflicts before they ship.**
+**Zero-dependency merge conflict detector. 29 tests, 100% pass rate. Catch conflicts before they ship.**
 
 Because shipping code with `<<<<<<< HEAD` in it is embarrassing. Runs in CI to catch unresolved conflicts before they land on main.
 
